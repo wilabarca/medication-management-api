@@ -4,15 +4,13 @@ import { Medication } from '../../Domain/Entities/Medication';
 import { MedicationRepository } from '../../Domain/Repositories/MedicationRepository';
 
 export class MySQLMedicationRepository implements MedicationRepository {
-  constructor(private db: mysql.Connection) {}
+  constructor(private db: mysql.Pool) {}
 
-  // ➕ Crear medicamento
   async create(medication: Medication): Promise<Medication> {
     const id = uuidv4();
 
     await this.db.execute(
-      `INSERT INTO medications (id, name, description, quantity, price, expiration_date) 
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO medications VALUES (?,?,?,?,?,?)`,
       [
         id,
         medication.name,
@@ -23,58 +21,26 @@ export class MySQLMedicationRepository implements MedicationRepository {
       ]
     );
 
-    return {
-      ...medication,
-      id
-    };
+    return { ...medication, id };
   }
 
-  // 🔍 Obtener medicamento por ID
   async getById(id: string): Promise<Medication | null> {
-    const [rows] = await this.db.execute<mysql.RowDataPacket[]>(
-      `SELECT id, name, description, quantity, price, expiration_date 
-       FROM medications WHERE id = ?`,
+    const [rows] = await this.db.execute<any[]>(
+      `SELECT * FROM medications WHERE id=?`,
       [id]
     );
 
-    if (rows.length === 0) {
-      return null;
-    }
-
-    const row = rows[0] as mysql.RowDataPacket;
-    return {
-      id: row.id as string,
-      name: row.name as string,
-      description: row.description as string,
-      quantity: row.quantity as number,
-      price: row.price as number,
-      expirationDate: new Date(row.expiration_date as string)
-    };
+    return rows[0] || null;
   }
 
-  // 📋 Obtener todos los medicamentos
   async getAll(): Promise<Medication[]> {
-    const [rows] = await this.db.execute<mysql.RowDataPacket[]>(
-      `SELECT id, name, description, quantity, price, expiration_date 
-       FROM medications ORDER BY name ASC`
-    );
-
-    return rows.map((row: mysql.RowDataPacket) => ({
-      id: row.id as string,
-      name: row.name as string,
-      description: row.description as string,
-      quantity: row.quantity as number,
-      price: row.price as number,
-      expirationDate: new Date(row.expiration_date as string)
-    }));
+    const [rows] = await this.db.execute<any[]>(`SELECT * FROM medications`);
+    return rows;
   }
 
-  // ✏️ Actualizar medicamento
   async update(medication: Medication): Promise<Medication> {
     await this.db.execute(
-      `UPDATE medications 
-       SET name = ?, description = ?, quantity = ?, price = ?, expiration_date = ? 
-       WHERE id = ?`,
+      `UPDATE medications SET name=?,description=?,quantity=?,price=?,expiration_date=? WHERE id=?`,
       [
         medication.name,
         medication.description,
@@ -88,11 +54,7 @@ export class MySQLMedicationRepository implements MedicationRepository {
     return medication;
   }
 
-  // 🗑️ Eliminar medicamento
   async delete(id: string): Promise<void> {
-    await this.db.execute(
-      `DELETE FROM medications WHERE id = ?`,
-      [id]
-    );
+    await this.db.execute(`DELETE FROM medications WHERE id=?`, [id]);
   }
 }
