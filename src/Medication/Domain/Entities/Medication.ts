@@ -4,5 +4,4 @@ export interface Medication {
   description: string;
   quantity: number;
   price: number;
-  expirationDate: Date;
 }

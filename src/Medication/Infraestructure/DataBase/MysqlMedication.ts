@@ -10,14 +10,13 @@ export class MySQLMedicationRepository implements MedicationRepository {
     const id = uuidv4();
 
     await this.db.execute(
-      `INSERT INTO medications VALUES (?,?,?,?,?,?)`,
+      `INSERT INTO medications (id,name,description,quantity,price) VALUES (?,?,?,?,?)`,
       [
         id,
         medication.name,
         medication.description,
         medication.quantity,
-        medication.price,
-        medication.expirationDate
+        medication.price
       ]
     );
 
@@ -40,13 +39,12 @@ export class MySQLMedicationRepository implements MedicationRepository {
 
   async update(medication: Medication): Promise<Medication> {
     await this.db.execute(
-      `UPDATE medications SET name=?,description=?,quantity=?,price=?,expiration_date=? WHERE id=?`,
+      `UPDATE medications SET name=?,description=?,quantity=?,price=? WHERE id=?`,
       [
         medication.name,
         medication.description,
         medication.quantity,
         medication.price,
-        medication.expirationDate,
         medication.id
       ]
     );

@@ -2,29 +2,25 @@ import { Medication } from '../Domain/Entities/Medication';
 import { MedicationRepository } from '../Domain/Repositories/MedicationRepository';
 
 export class MedicationService {
-  private repository: MedicationRepository;
+  constructor(private repository: MedicationRepository) {}
 
-  constructor(repository: MedicationRepository) {
-    this.repository = repository;
-  }
-
-  async createMedication(medication: Medication): Promise<Medication> {
+  createMedication(medication: Medication) {
     return this.repository.create(medication);
   }
 
-  async getMedicationById(id: string): Promise<Medication | null> {
+  getMedicationById(id: string) {
     return this.repository.getById(id);
   }
 
-  async updateMedication(medication: Medication): Promise<Medication> {
+  getAllMedications() {
+    return this.repository.getAll();
+  }
+
+  updateMedication(medication: Medication) {
     return this.repository.update(medication);
   }
 
-  async deleteMedication(id: string): Promise<void> {
-    await this.repository.delete(id);
-  }
-
-  async getAllMedications(): Promise<Medication[]> {
-    return this.repository.getAll();
+  deleteMedication(id: string) {
+    return this.repository.delete(id);
   }
 }

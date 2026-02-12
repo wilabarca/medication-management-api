@@ -15,7 +15,6 @@ export const pool = mysql.createPool({
   queueLimit: 0
 });
 
-
 export async function initDB(): Promise<void> {
   try {
     const connection = await pool.getConnection();
@@ -50,7 +49,6 @@ async function createTables(connection: mysql.PoolConnection): Promise<void> {
       description TEXT NOT NULL,
       quantity INT NOT NULL DEFAULT 0,
       price DECIMAL(10,2) NOT NULL,
-      expiration_date DATE NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )
