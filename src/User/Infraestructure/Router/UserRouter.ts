@@ -1,37 +1,42 @@
-import { Router } from 'express';
-import { UserController } from '../../Infraestructure/Controllers/UserControllers';
+import { Router } from "express";
+import { UserController } from "../Controllers/UserControllers";
 
-// RegisterUserRoutes registra las rutas de usuarios en el router
 export function RegisterUserRoutes(
   router: Router,
   userController: UserController
 ): void {
-  // Agrupamos las rutas relacionadas con User
+
   const userGroup = Router();
 
-  // Rutas públicas (no requieren autenticación)
-  userGroup.get('/', (req, res) => 
-    userController.getAllUsers(req, res)
-  ); // Obtener todos los usuarios
+  // LOGIN
+  userGroup.post("/login", (req, res) =>
+    userController.login(req, res)
+  );
 
-  // Ruta con ID
-  userGroup.get('/:id', (req, res) => 
-    userController.getUserById(req, res)
-  ); // Obtener usuario por ID
-
-  // CRUD
-  userGroup.post('/', (req, res) => 
+  // REGISTER
+  userGroup.post("/", (req, res) =>
     userController.createUser(req, res)
-  ); // Crear usuario
+  );
 
-  userGroup.put('/:id', (req, res) => 
+  // GET ALL USERS
+  userGroup.get("/", (req, res) =>
+    userController.getAllUsers(req, res)
+  );
+
+  // GET USER BY ID
+  userGroup.get("/:id", (req, res) =>
+    userController.getUserById(req, res)
+  );
+
+  // UPDATE USER
+  userGroup.put("/:id", (req, res) =>
     userController.updateUser(req, res)
-  ); // Actualizar usuario
+  );
 
-  userGroup.delete('/:id', (req, res) => 
+  // DELETE USER
+  userGroup.delete("/:id", (req, res) =>
     userController.deleteUser(req, res)
-  ); // Eliminar usuario
+  );
 
-  // Registrar el grupo de rutas bajo /users
-  router.use('/users', userGroup);
+  router.use("/users", userGroup);
 }

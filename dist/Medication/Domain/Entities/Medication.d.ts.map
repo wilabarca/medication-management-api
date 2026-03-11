@@ -1,0 +1,1 @@
+{"version":3,"file":"Medication.d.ts","sourceRoot":"","sources":["../../../../src/Medication/Domain/Entities/Medication.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,UAAU;IACzB,EAAE,EAAE,MAAM,CAAC;IACX,IAAI,EAAE,MAAM,CAAC;IACb,WAAW,EAAE,MAAM,CAAC;IACpB,QAAQ,EAAE,MAAM,CAAC;IACjB,KAAK,EAAE,MAAM,CAAC;CACf"}

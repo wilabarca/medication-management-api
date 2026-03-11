@@ -1,7 +1,7 @@
-import mysql from 'mysql2/promise';
-import { v4 as uuidv4 } from 'uuid';
-import { User } from '../../Domain/Entities/User';
-import { UserRepository } from '../../Domain/Repositories/UserRepository';
+import mysql from "mysql2/promise";
+import { v4 as uuidv4 } from "uuid";
+import { User } from "../../Domain/Entities/User";
+import { UserRepository } from "../../Domain/Repositories/UserRepository";
 
 export class MySQLUserRepository implements UserRepository {
   constructor(private db: mysql.Pool) {}
@@ -10,7 +10,7 @@ export class MySQLUserRepository implements UserRepository {
     const id = uuidv4();
 
     await this.db.execute(
-      `INSERT INTO users (id,name,email,password) VALUES (?,?,?,?)`,
+      `INSERT INTO users (id, name, email, password) VALUES (?, ?, ?, ?)`,
       [id, user.name, user.email, user.password]
     );
 
@@ -19,21 +19,33 @@ export class MySQLUserRepository implements UserRepository {
 
   async getById(id: string): Promise<User | null> {
     const [rows] = await this.db.execute<any[]>(
-      `SELECT * FROM users WHERE id=?`,
+      `SELECT * FROM users WHERE id = ?`,
       [id]
     );
 
     return rows[0] || null;
   }
 
+  async getByEmail(email: string): Promise<User | null> {
+    const [rows] = await this.db.execute<any[]>(
+      `SELECT * FROM users WHERE email = ?`,
+      [email]
+    );
+
+    return rows[0] || null;
+  }
+
   async getAll(): Promise<User[]> {
-    const [rows] = await this.db.execute<any[]>(`SELECT * FROM users`);
+    const [rows] = await this.db.execute<any[]>(
+      `SELECT * FROM users`
+    );
+
     return rows;
   }
 
   async update(user: User): Promise<User> {
     await this.db.execute(
-      `UPDATE users SET name=?,email=?,password=? WHERE id=?`,
+      `UPDATE users SET name=?, email=?, password=? WHERE id=?`,
       [user.name, user.email, user.password, user.id]
     );
 
@@ -41,6 +53,9 @@ export class MySQLUserRepository implements UserRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.db.execute(`DELETE FROM users WHERE id=?`, [id]);
+    await this.db.execute(
+      `DELETE FROM users WHERE id=?`,
+      [id]
+    );
   }
 }
