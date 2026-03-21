@@ -35,10 +35,7 @@ export async function initializeRoutes() {
     RegisterMedicationRoutes(app, medicationController);
 
     app.get('/', (_, res) => {
-      res.json({
-        mensaje: 'API Farmacia',
-        version: '1.0.0'
-      });
+      res.json({ mensaje: 'API Farmacia', version: '1.0.0' });
     });
 
     console.log('✅ Rutas inicializadas');
