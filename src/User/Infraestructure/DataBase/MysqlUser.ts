@@ -1,5 +1,5 @@
 import mysql from "mysql2/promise";
-import { v4 as uuidv4 } from "uuid";
+import crypto from "crypto";
 import { User } from "../../Domain/Entities/User";
 import { UserRepository } from "../../Domain/Repositories/UserRepository";
 
@@ -7,7 +7,7 @@ export class MySQLUserRepository implements UserRepository {
   constructor(private db: mysql.Pool) {}
 
   async create(user: User): Promise<User> {
-    const id = uuidv4();
+    const id = crypto.randomUUID();
 
     await this.db.execute(
       `INSERT INTO users (id, name, email, password) VALUES (?, ?, ?, ?)`,
@@ -22,7 +22,6 @@ export class MySQLUserRepository implements UserRepository {
       `SELECT * FROM users WHERE id = ?`,
       [id]
     );
-
     return rows[0] || null;
   }
 
@@ -31,7 +30,6 @@ export class MySQLUserRepository implements UserRepository {
       `SELECT * FROM users WHERE email = ?`,
       [email]
     );
-
     return rows[0] || null;
   }
 
@@ -39,7 +37,6 @@ export class MySQLUserRepository implements UserRepository {
     const [rows] = await this.db.execute<any[]>(
       `SELECT * FROM users`
     );
-
     return rows;
   }
 
@@ -48,7 +45,6 @@ export class MySQLUserRepository implements UserRepository {
       `UPDATE users SET name=?, email=?, password=? WHERE id=?`,
       [user.name, user.email, user.password, user.id]
     );
-
     return user;
   }
 
