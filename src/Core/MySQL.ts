@@ -3,58 +3,49 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-let pool: mysql.Pool | null = null;
+let connection: mysql.Connection | null = null;
 
-export function getPool(): mysql.Pool {
-  if (!pool) {
-    console.log('🔄 Creando nuevo pool de conexiones MySQL');
-    pool = mysql.createPool({
+export async function getConnection(): Promise<mysql.Connection> {
+  if (!connection) {
+    connection = await mysql.createConnection({
       host: process.env.DB_HOST!,
       user: process.env.DB_USER!,
       password: process.env.DB_PASSWORD!,
       database: process.env.DB_NAME!,
       port: Number(process.env.DB_PORT ?? 3306),
-      waitForConnections: true,
-      connectionLimit: 1,
-      queueLimit: 0,
       connectTimeout: 10000
     });
   }
-  return pool;
+  return connection;
+}
+
+export async function closeConnection(): Promise<void> {
+  if (connection) {
+    await connection.end().catch(() => {});
+    connection = null;
+  }
 }
 
 export async function initDB(): Promise<void> {
-  let connection;
   try {
-    const currentPool = getPool();
-    connection = await currentPool.getConnection();
-    console.log('✅ Pool MySQL conectado correctamente');
-    await connection.query('SELECT 1');
-    console.log('✅ Conexión MySQL verificada');
-    connection.release();
+    const conn = await getConnection();
+    await conn.query('SELECT 1');
+    console.log('✅ MySQL conectado');
   } catch (error) {
-    console.error('❌ Error inicializando DB:', error);
-    if (pool) {
-      try {
-        await pool.end();
-      } catch (e) {
-        console.error('Error cerrando pool:', e);
-      }
-      pool = null;
-    }
+    console.error('❌ Error conectando DB:', error);
+    connection = null;
     throw error;
   }
 }
 
-export async function closePool(): Promise<void> {
-  if (pool) {
-    try {
-      await pool.end();
-      console.log('✅ Pool MySQL cerrado correctamente');
-    } catch (error) {
-      console.error('❌ Error cerrando pool:', error);
-    } finally {
-      pool = null;
-    }
+// Exportar pool como alias para compatibilidad con repositorios
+export const pool = {
+  execute: async (sql: string, params?: any[]) => {
+    const conn = await getConnection();
+    return conn.execute(sql, params);
+  },
+  getConnection: async () => {
+    const conn = await getConnection();
+    return { ...conn, release: () => {} };
   }
-}
+} as any;
