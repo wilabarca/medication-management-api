@@ -11,18 +11,19 @@ export const pool = mysql.createPool({
   port: Number(process.env.DB_PORT ?? 3306),
 
   waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
+  connectionLimit: 5,
+  queueLimit: 0,
+  connectTimeout: 10000,
+  idleTimeout: 30000,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0
 });
 
 export async function initDB(): Promise<void> {
   try {
     const connection = await pool.getConnection();
-
     console.log('✅ Pool MySQL conectado');
-
     await createTables(connection);
-
     connection.release();
   } catch (error) {
     console.error('❌ Error inicializando DB:', error);
@@ -56,6 +57,5 @@ async function createTables(connection: mysql.PoolConnection): Promise<void> {
 
   await connection.execute(usersTable);
   await connection.execute(medicationsTable);
-
   console.log('✅ Tablas listas');
 }
