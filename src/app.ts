@@ -15,6 +15,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Ruta de prueba URGENTE - esta debe funcionar siempre
+app.get('/test', (req, res) => {
+  res.json({ 
+    message: 'Test endpoint funcionando',
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.get('/health', async (_, res) => {
   try {
     const pool = getPool();
@@ -30,6 +38,7 @@ app.get('/health', async (_, res) => {
     res.json({ 
       status: 'OK',
       database: 'disconnected',
+      error: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString()
     });
   }
@@ -39,18 +48,19 @@ let isInitialized = false;
 
 export async function initializeRoutes() {
   if (isInitialized) {
+    console.log('✅ Rutas ya inicializadas');
     return;
   }
   
   try {
     console.log('🚀 Inicializando rutas...');
     
-    // Inicializar DB y obtener pool
+    // Inicializar DB
     await initDB();
     const pool = getPool();
     console.log('📦 Pool obtenido correctamente');
 
-    // Crear repositorios PASANDO EL POOL
+    // Crear repositorios con el pool
     const userRepository = new MySQLUserRepository(pool);
     const userService = new UserService(userRepository);
     const userController = new UserController(userService);
@@ -59,9 +69,11 @@ export async function initializeRoutes() {
     const medicationService = new MedicationService(medicationRepository);
     const medicationController = new MedicineController(medicationService);
 
+    // Registrar rutas
     RegisterUserRoutes(app, userController);
     RegisterMedicationRoutes(app, medicationController);
 
+    // Ruta principal
     app.get('/', (_, res) => {
       res.json({
         mensaje: 'API Farmacia',
@@ -72,11 +84,17 @@ export async function initializeRoutes() {
 
     isInitialized = true;
     console.log('✅ Rutas inicializadas correctamente');
+    console.log('📋 Rutas disponibles: /, /test, /health, /users/*, /medications/*');
     
   } catch (error) {
-    console.error('❌ Error inicializando rutas:', error);
-    throw error; // Lanzar error para que se maneje en index.ts
+    console.error('❌ Error FATAL inicializando rutas:', error);
+    throw error;
   }
+}
+
+// IMPORTANTE: Inicializar inmediatamente para desarrollo local
+if (process.env.NODE_ENV !== 'production') {
+  initializeRoutes().catch(console.error);
 }
 
 export default app;
