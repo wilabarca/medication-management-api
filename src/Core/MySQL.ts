@@ -9,14 +9,15 @@ export function getPool(): mysql.Pool {
   if (!pool) {
     console.log('🔄 Creando nuevo pool de conexiones MySQL');
     pool = mysql.createPool({
-      host: process.env.DB_HOST,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
+      host: process.env.DB_HOST!,
+      user: process.env.DB_USER!,
+      password: process.env.DB_PASSWORD!,
+      database: process.env.DB_NAME!,
       port: Number(process.env.DB_PORT ?? 3306),
       waitForConnections: true,
       connectionLimit: 1,
-      queueLimit: 0
+      queueLimit: 0,
+      connectTimeout: 10000
     });
   }
   return pool;
@@ -28,15 +29,11 @@ export async function initDB(): Promise<void> {
     const currentPool = getPool();
     connection = await currentPool.getConnection();
     console.log('✅ Pool MySQL conectado correctamente');
-    
-    // Verificar conexión ejecutando una consulta simple
     await connection.query('SELECT 1');
     console.log('✅ Conexión MySQL verificada');
-    
     connection.release();
   } catch (error) {
     console.error('❌ Error inicializando DB:', error);
-    // Si hay error, resetear el pool
     if (pool) {
       try {
         await pool.end();
@@ -59,28 +56,5 @@ export async function closePool(): Promise<void> {
     } finally {
       pool = null;
     }
-  }
-}
-
-// Función para verificar la salud de la conexión
-export async function checkHealth(): Promise<boolean> {
-  try {
-    const currentPool = getPool();
-    const connection = await currentPool.getConnection();
-    await connection.query('SELECT 1');
-    connection.release();
-    return true;
-  } catch (error) {
-    console.error('❌ Health check falló:', error);
-    // Si el pool está roto, resetearlo
-    if (pool) {
-      try {
-        await pool.end();
-      } catch (e) {
-        // Ignorar error al cerrar
-      }
-      pool = null;
-    }
-    return false;
   }
 }
