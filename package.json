@@ -6,7 +6,7 @@
   "type": "commonjs",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only --files src/server.ts",
-    "build": "echo build ok",
+    "build": "tsc --noEmit false",
     "start": "node dist/server.js",
     "test": "echo \"No tests yet\"",
     "clean": "rm -rf dist"
