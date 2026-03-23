@@ -1,11 +1,11 @@
 import app, { initializeRoutes } from './app';
-import { closePool } from './Core/MySQL';
+import { closeConnection } from './Core/MySQL';
 
 const PORT = process.env.PORT || 3000;
 
 async function startServer() {
   try {
-    console.log('🚀 Iniciando servidor local...');
+    console.log('🚀 Iniciando servidor...');
     await initializeRoutes();
 
     const server = app.listen(PORT, () => {
@@ -13,13 +13,12 @@ async function startServer() {
       console.log(`📊 Health check: http://localhost:${PORT}/health`);
     });
 
-    // Manejar cierre graceful en desarrollo
     const gracefulShutdown = async () => {
       console.log('🛑 Recibida señal de cierre, cerrando servidor...');
       server.close(async () => {
         console.log('✅ Servidor HTTP cerrado');
-        await closePool();
-        console.log('✅ Pool MySQL cerrado');
+        await closeConnection();
+        console.log('✅ Conexión MySQL cerrada');
         process.exit(0);
       });
     };

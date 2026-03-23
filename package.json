@@ -2,14 +2,12 @@
   "name": "medication-management-api",
   "version": "1.0.0",
   "description": "REST API for medication management",
-  "main": "dist/server.js",
-  "type": "commonjs",
+  "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only --files src/server.ts",
-    "build": "tsc --noEmit false",
+    "build": "tsc",
     "start": "node dist/server.js",
-    "test": "echo \"No tests yet\"",
-    "clean": "rm -rf dist"
+    "vercel-build": "tsc"
   },
   "keywords": [],
   "author": "",

@@ -8,16 +8,15 @@ import { MySQLUserRepository } from './User/Infraestructure/DataBase/MysqlUser';
 import { MedicineController } from './Medication/Infraestructure/Controllers/MedicationControllers';
 import { MedicationService } from './Medication/Application/Medicationservices';
 import { MySQLMedicationRepository } from './Medication/Infraestructure/DataBase/MysqlMedication';
-import { initDB, getPool } from "./Core/MySQL";
+import { initDB, pool } from './Core/MySQL';
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-// Ruta de prueba URGENTE - esta debe funcionar siempre
 app.get('/test', (req, res) => {
-  res.json({ 
+  res.json({
     message: 'Test endpoint funcionando',
     timestamp: new Date().toISOString()
   });
@@ -25,17 +24,16 @@ app.get('/test', (req, res) => {
 
 app.get('/health', async (_, res) => {
   try {
-    const pool = getPool();
     const connection = await pool.getConnection();
-    await connection.query('SELECT 1');
+    await connection.execute('SELECT 1');
     connection.release();
-    res.json({ 
+    res.json({
       status: 'OK',
       database: 'connected',
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    res.json({ 
+    res.json({
       status: 'OK',
       database: 'disconnected',
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -51,16 +49,13 @@ export async function initializeRoutes() {
     console.log('✅ Rutas ya inicializadas');
     return;
   }
-  
+
   try {
     console.log('🚀 Inicializando rutas...');
-    
-    // Inicializar DB
-    await initDB();
-    const pool = getPool();
-    console.log('📦 Pool obtenido correctamente');
 
-    // Crear repositorios con el pool
+    await initDB();
+    console.log('📦 Conexión MySQL lista');
+
     const userRepository = new MySQLUserRepository(pool);
     const userService = new UserService(userRepository);
     const userController = new UserController(userService);
@@ -69,11 +64,9 @@ export async function initializeRoutes() {
     const medicationService = new MedicationService(medicationRepository);
     const medicationController = new MedicineController(medicationService);
 
-    // Registrar rutas
     RegisterUserRoutes(app, userController);
     RegisterMedicationRoutes(app, medicationController);
 
-    // Ruta principal
     app.get('/', (_, res) => {
       res.json({
         mensaje: 'API Farmacia',
@@ -84,17 +77,11 @@ export async function initializeRoutes() {
 
     isInitialized = true;
     console.log('✅ Rutas inicializadas correctamente');
-    console.log('📋 Rutas disponibles: /, /test, /health, /users/*, /medications/*');
-    
+
   } catch (error) {
     console.error('❌ Error FATAL inicializando rutas:', error);
     throw error;
   }
-}
-
-// IMPORTANTE: Inicializar inmediatamente para desarrollo local
-if (process.env.NODE_ENV !== 'production') {
-  initializeRoutes().catch(console.error);
 }
 
 export default app;
