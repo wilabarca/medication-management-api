@@ -3,7 +3,6 @@ import { MedicationService } from "../../Application/Medicationservices";
 import { Medication } from "../../Domain/Entities/Medication";
 
 export class MedicineController {
-
   constructor(private service: MedicationService) {}
 
   async createMedicine(req: Request, res: Response): Promise<Response> {
