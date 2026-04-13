@@ -3,27 +3,36 @@ import { MedicationService } from "../../Application/Medicationservices";
 import { Medication } from "../../Domain/Entities/Medication";
 
 export class MedicineController {
-
   constructor(private service: MedicationService) {}
 
   async createMedicine(req: Request, res: Response) {
-    const { name, description, quantity, price } = req.body;
+    try {
+      const { name, description, quantity, price } = req.body;
 
-    if (!name || !description || quantity === undefined || price === undefined) {
-      return res.status(400).json({ error: "Todos los campos son requeridos" });
+      if (!name || !description || quantity === undefined || price === undefined) {
+        return res.status(400).json({ error: "Todos los campos son requeridos" });
+      }
+
+      const medication: Medication = {
+        id: '',
+        name,
+        description,
+        quantity,
+        price
+      };
+
+      const createdMedication = await this.service.createMedication(medication);
+
+      return res.status(201).json({
+        mensaje: "Medicamento creado exitosamente",
+        data: createdMedication
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+        error: "Error al crear medicamento"
+      });
     }
-
-    const medication: Medication = {
-      id: '',
-      name,
-      description,
-      quantity,
-      price
-    };
-
-    await this.service.createMedication(medication);
-
-    res.status(201).json({ mensaje: "Medicamento creado exitosamente" });
   }
 
   async getAllMedicines(req: Request, res: Response) {

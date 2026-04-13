@@ -5,8 +5,9 @@ const PORT = process.env.PORT || 3000;
 async function startServer() {
   await initializeRoutes();
 
+
   app.listen(PORT, () => {
-    console.log(`🚀 http://localhost:${PORT}`);
+    console.log(`🚀 http://0.0.0.0:${PORT}`);
   });
 }
 
