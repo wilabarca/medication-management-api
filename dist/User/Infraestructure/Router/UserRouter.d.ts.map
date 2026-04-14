@@ -1,1 +1,0 @@
-{"version":3,"file":"UserRouter.d.ts","sourceRoot":"","sources":["../../../../src/User/Infraestructure/Router/UserRouter.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAE,MAAM,SAAS,CAAC;AACjC,OAAO,EAAE,cAAc,EAAE,MAAM,mDAAmD,CAAC;AAGnF,wBAAgB,kBAAkB,CAChC,MAAM,EAAE,MAAM,EACd,cAAc,EAAE,cAAc,GAC7B,IAAI,CAwBN"}

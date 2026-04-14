@@ -1,5 +1,5 @@
 import mysql from 'mysql2/promise';
-import { v4 as uuidv4 } from 'uuid';
+import crypto from 'crypto';
 import { Medication } from '../../Domain/Entities/Medication';
 import { MedicationRepository } from '../../Domain/Repositories/MedicationRepository';
 
@@ -7,7 +7,7 @@ export class MySQLMedicationRepository implements MedicationRepository {
   constructor(private db: mysql.Pool) {}
 
   async create(medication: Medication): Promise<Medication> {
-    const id = uuidv4();
+    const id = crypto.randomUUID();
 
     await this.db.execute(
       `INSERT INTO medications (id,name,description,quantity,price) VALUES (?,?,?,?,?)`,
@@ -28,7 +28,6 @@ export class MySQLMedicationRepository implements MedicationRepository {
       `SELECT * FROM medications WHERE id=?`,
       [id]
     );
-
     return rows[0] || null;
   }
 
@@ -48,7 +47,6 @@ export class MySQLMedicationRepository implements MedicationRepository {
         medication.id
       ]
     );
-
     return medication;
   }
 

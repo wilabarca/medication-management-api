@@ -8,20 +8,53 @@ import { MySQLUserRepository } from './User/Infraestructure/DataBase/MysqlUser';
 import { MedicineController } from './Medication/Infraestructure/Controllers/MedicationControllers';
 import { MedicationService } from './Medication/Application/Medicationservices';
 import { MySQLMedicationRepository } from './Medication/Infraestructure/DataBase/MysqlMedication';
-import { initDB, pool } from "./Core/MySQL";
+import { initDB, pool } from './Core/MySQL';
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-app.get('/health', (_, res) => {
-  res.json({ status: 'API Medicamentos OK' });
+app.get('/test', (req, res) => {
+  res.json({
+    message: 'Test endpoint funcionando',
+    timestamp: new Date().toISOString()
+  });
 });
 
-export async function initializeRoutes() {
+app.get('/health', async (_, res) => {
   try {
+    const connection = await pool.getConnection();
+    await connection.execute('SELECT 1');
+    connection.release();
+    res.json({
+      status: 'OK',
+      database: 'connected',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.json({
+      status: 'OK',
+      database: 'disconnected',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+let isInitialized = false;
+
+export async function initializeRoutes() {
+  if (isInitialized) {
+    console.log('✅ Rutas ya inicializadas');
+    return;
+  }
+
+  try {
+    console.log('🚀 Inicializando rutas...');
+
     await initDB();
+    console.log('📦 Conexión MySQL lista');
 
     const userRepository = new MySQLUserRepository(pool);
     const userService = new UserService(userRepository);
@@ -37,13 +70,16 @@ export async function initializeRoutes() {
     app.get('/', (_, res) => {
       res.json({
         mensaje: 'API Farmacia',
-        version: '1.0.0'
+        version: '1.0.0',
+        timestamp: new Date().toISOString()
       });
     });
 
-    console.log('✅ Rutas inicializadas');
+    isInitialized = true;
+    console.log('✅ Rutas inicializadas correctamente');
+
   } catch (error) {
-    console.error(error);
+    console.error('❌ Error FATAL inicializando rutas:', error);
     throw error;
   }
 }

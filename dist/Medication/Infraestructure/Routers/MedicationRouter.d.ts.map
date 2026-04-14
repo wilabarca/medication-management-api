@@ -1,1 +1,0 @@
-{"version":3,"file":"MedicationRouter.d.ts","sourceRoot":"","sources":["../../../../src/Medication/Infraestructure/Routers/MedicationRouter.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAE,MAAM,SAAS,CAAC;AACjC,OAAO,EAAE,kBAAkB,EAAE,MAAM,yDAAyD,CAAC;AAE7F,wBAAgB,wBAAwB,CACtC,MAAM,EAAE,MAAM,EACd,oBAAoB,EAAE,kBAAkB,GACvC,IAAI,CAyBN"}

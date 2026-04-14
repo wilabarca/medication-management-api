@@ -2,32 +2,28 @@ import { Request, Response } from "express";
 import { User } from "../../Domain/Entities/User";
 import { UserService } from "../../Application/Userservices";
 
-
 export class UserController {
 
   constructor(private userService: UserService) {}
 
   // Crear usuario (registro)
-  async createUser(req: Request, res: Response) {
+  async createUser(req: Request, res: Response): Promise<Response> {
     try {
-
       const user: User = req.body;
-
       const newUser = await this.userService.createUser(user);
 
-      res.status(201).json(newUser);
+      return res.status(201).json(newUser);
 
     } catch (error) {
-      res.status(500).json({
+      return res.status(500).json({
         message: "Error creating user"
       });
     }
   }
 
   // Login
-  async login(req: Request, res: Response) {
+  async login(req: Request, res: Response): Promise<Response> {
     try {
-
       const { email, password } = req.body;
 
       const token = await this.userService.login(email, password);
@@ -38,27 +34,26 @@ export class UserController {
         });
       }
 
-      res.json({
+      return res.json({
         token
       });
 
     } catch (error) {
-      res.status(500).json({
+      return res.status(500).json({
         message: "Error en login"
       });
     }
   }
 
   // Obtener todos los usuarios
-  async getAllUsers(req: Request, res: Response) {
+  async getAllUsers(_req: Request, res: Response): Promise<Response> {
     try {
-
       const users = await this.userService.getAllUsers();
 
-      res.json(users);
+      return res.json(users);
 
     } catch (error) {
-      res.status(500).json({
+      return res.status(500).json({
         message: "Error fetching users"
       });
     }
@@ -68,9 +63,8 @@ export class UserController {
   async getUserById(
     req: Request<{ id: string }>,
     res: Response
-  ) {
+  ): Promise<Response> {
     try {
-
       const { id } = req.params;
 
       const user = await this.userService.getUserById(id);
@@ -81,10 +75,10 @@ export class UserController {
         });
       }
 
-      res.json(user);
+      return res.json(user);
 
     } catch (error) {
-      res.status(500).json({
+      return res.status(500).json({
         message: "Error fetching user"
       });
     }
@@ -94,9 +88,8 @@ export class UserController {
   async updateUser(
     req: Request<{ id: string }>,
     res: Response
-  ) {
+  ): Promise<Response> {
     try {
-
       const { id } = req.params;
 
       const user: User = {
@@ -106,10 +99,10 @@ export class UserController {
 
       const updatedUser = await this.userService.updateUser(user);
 
-      res.json(updatedUser);
+      return res.json(updatedUser);
 
     } catch (error) {
-      res.status(500).json({
+      return res.status(500).json({
         message: "Error updating user"
       });
     }
@@ -119,22 +112,20 @@ export class UserController {
   async deleteUser(
     req: Request<{ id: string }>,
     res: Response
-  ) {
+  ): Promise<Response> {
     try {
-
       const { id } = req.params;
 
       await this.userService.deleteUser(id);
 
-      res.json({
+      return res.json({
         message: "Usuario eliminado"
       });
 
     } catch (error) {
-      res.status(500).json({
+      return res.status(500).json({
         message: "Error deleting user"
       });
     }
   }
-
 }
