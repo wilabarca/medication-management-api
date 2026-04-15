@@ -6,51 +6,112 @@ import { MedicationRepository } from '../../Domain/Repositories/MedicationReposi
 export class MySQLMedicationRepository implements MedicationRepository {
   constructor(private db: mysql.Pool) {}
 
+  private mapRowToMedication(row: any): Medication {
+    return {
+      id: row.id,
+      userId: row.user_id,
+      name: row.name,
+      dosage: row.dosage,
+      form: row.form,
+      instructions: row.instructions ?? undefined,
+      notes: row.notes ?? undefined,
+      quantity: Number(row.quantity ?? 0),
+      price:
+        row.price !== null && row.price !== undefined
+          ? Number(row.price)
+          : undefined,
+      isActive: Boolean(row.is_active)
+    };
+  }
+
   async create(medication: Medication): Promise<Medication> {
     const id = crypto.randomUUID();
 
     await this.db.execute(
-      `INSERT INTO medications (id,name,description,quantity,price) VALUES (?,?,?,?,?)`,
+      `
+      INSERT INTO medications (
+        id,
+        user_id,
+        name,
+        dosage,
+        form,
+        instructions,
+        notes,
+        quantity,
+        price,
+        is_active
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
       [
         id,
+        medication.userId,
         medication.name,
-        medication.description,
+        medication.dosage,
+        medication.form,
+        medication.instructions ?? null,
+        medication.notes ?? null,
         medication.quantity,
-        medication.price
+        medication.price ?? null,
+        medication.isActive
       ]
     );
 
-    return { ...medication, id };
+    return {
+      ...medication,
+      id
+    };
   }
 
   async getById(id: string): Promise<Medication | null> {
     const [rows] = await this.db.execute<any[]>(
-      `SELECT * FROM medications WHERE id=?`,
+      `SELECT * FROM medications WHERE id = ?`,
       [id]
     );
-    return rows[0] || null;
+
+    if (!rows.length) return null;
+
+    return this.mapRowToMedication(rows[0]);
   }
 
   async getAll(): Promise<Medication[]> {
     const [rows] = await this.db.execute<any[]>(`SELECT * FROM medications`);
-    return rows;
+    return rows.map((row) => this.mapRowToMedication(row));
   }
 
   async update(medication: Medication): Promise<Medication> {
     await this.db.execute(
-      `UPDATE medications SET name=?,description=?,quantity=?,price=? WHERE id=?`,
+      `
+      UPDATE medications
+      SET
+        user_id = ?,
+        name = ?,
+        dosage = ?,
+        form = ?,
+        instructions = ?,
+        notes = ?,
+        quantity = ?,
+        price = ?,
+        is_active = ?
+      WHERE id = ?
+      `,
       [
+        medication.userId,
         medication.name,
-        medication.description,
+        medication.dosage,
+        medication.form,
+        medication.instructions ?? null,
+        medication.notes ?? null,
         medication.quantity,
-        medication.price,
+        medication.price ?? null,
+        medication.isActive,
         medication.id
       ]
     );
+
     return medication;
   }
 
   async delete(id: string): Promise<void> {
-    await this.db.execute(`DELETE FROM medications WHERE id=?`, [id]);
+    await this.db.execute(`DELETE FROM medications WHERE id = ?`, [id]);
   }
 }
