@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { UserController } from "../Controllers/UserControllers";
+import { UserController } from "../Controllers/UserDeviceController";
 
 export function RegisterUserRoutes(
   router: Router,

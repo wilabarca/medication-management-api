@@ -2,13 +2,19 @@ import express from 'express';
 import cors from 'cors';
 import { RegisterUserRoutes } from './User/Infraestructure/Router/UserRouter';
 import { RegisterMedicationRoutes } from './Medication/Infraestructure/Routers/MedicationRouter';
-import { UserController } from './User/Infraestructure/Controllers/UserControllers';
+import { UserController } from './User/Infraestructure/Controllers/UserDeviceController';
 import { UserService } from './User/Application/Userservices';
 import { MySQLUserRepository } from './User/Infraestructure/DataBase/MysqlUser';
 import { MedicineController } from './Medication/Infraestructure/Controllers/MedicationControllers';
 import { MedicationService } from './Medication/Application/Medicationservices';
 import { MySQLMedicationRepository } from './Medication/Infraestructure/DataBase/MysqlMedication';
+
+import { UserDeviceService } from "./Devises/application/UserDeviceService";
+import { UserDeviceController } from "./Devises/infrastructure/controllers/UserDeviceController";
+import { MySQLUserDeviceRepository } from "./Devises/infrastructure/database/MysqlDevicesRepository";
+import { RegisterUserDeviceRoutes } from "./Devises/infrastructure/router/UserDeviceRouter";
 import { initDB, pool } from './Core/MySQL';
+
 
 const app = express();
 
@@ -60,12 +66,23 @@ export async function initializeRoutes() {
     const userService = new UserService(userRepository);
     const userController = new UserController(userService);
 
+
+
+
+
+        const userDeviceRepository = new MySQLUserDeviceRepository(pool);
+        const userDeviceService = new UserDeviceService(userDeviceRepository);
+        const userDeviceController = new UserDeviceController(userDeviceService);
+
+
+
     const medicationRepository = new MySQLMedicationRepository(pool);
     const medicationService = new MedicationService(medicationRepository);
     const medicationController = new MedicineController(medicationService);
 
     RegisterUserRoutes(app, userController);
     RegisterMedicationRoutes(app, medicationController);
+    RegisterUserDeviceRoutes(app, userDeviceController);
 
     app.get('/', (_, res) => {
       res.json({
