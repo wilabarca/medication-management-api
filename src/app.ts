@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { RegisterUserRoutes } from './User/Infraestructure/Router/UserRouter';
 import { RegisterMedicationRoutes } from './Medication/Infraestructure/Routers/MedicationRouter';
-import { UserController } from './User/Infraestructure/Controllers/UserDeviceController';
+import { UserController } from './User/Infraestructure/Controllers/UserController';
 import { UserService } from './User/Application/Userservices';
 import { MySQLUserRepository } from './User/Infraestructure/DataBase/MysqlUser';
 import { MedicineController } from './Medication/Infraestructure/Controllers/MedicationControllers';
@@ -67,17 +67,17 @@ export async function initializeRoutes() {
     const userController = new UserController(userService);
 
 
-
-
-
-        const userDeviceRepository = new MySQLUserDeviceRepository(pool);
-        const userDeviceService = new UserDeviceService(userDeviceRepository);
-        const userDeviceController = new UserDeviceController(userDeviceService);
+    const userDeviceRepository = new MySQLUserDeviceRepository(pool);
+    const userDeviceService = new UserDeviceService(userDeviceRepository);
+    const userDeviceController = new UserDeviceController(userDeviceService);
 
 
 
     const medicationRepository = new MySQLMedicationRepository(pool);
-    const medicationService = new MedicationService(medicationRepository);
+    const medicationService = new MedicationService(
+    medicationRepository,
+    userDeviceRepository
+);
     const medicationController = new MedicineController(medicationService);
 
     RegisterUserRoutes(app, userController);

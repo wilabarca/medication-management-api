@@ -1,18 +1,31 @@
 import { Medication } from '../Domain/Entities/Medication';
 import { MedicationRepository } from '../Domain/Repositories/MedicationRepository';
-import { sendMedicationCreatedNotification } from '../../Core/firebase/MedicationNotifications';
+import { sendMedicationNotificationToTokens } from '../../Core/firebase/MedicationNotifications';
+import { UserDeviceRepository } from '../../Devises/domain/Repositories/UserDeviceRepository';
 
 export class MedicationService {
-  constructor(private repository: MedicationRepository) {}
+  constructor(
+    private repository: MedicationRepository,
+    private userDeviceRepository: UserDeviceRepository
+  ) {}
 
-  async createMedication(medication: Medication) {
+  async createMedication(medication: Medication, deviceId: string) {
     const createdMedication = await this.repository.create(medication);
 
     try {
-      const messageId = await sendMedicationCreatedNotification(createdMedication);
-      console.log('✅ FCM enviado:', messageId);
+      const tokens =
+        await this.userDeviceRepository.getTokensByUserIdExcludingDevice(
+          createdMedication.userId,
+          deviceId
+        );
+
+      await sendMedicationNotificationToTokens(
+        createdMedication,
+        tokens,
+        'medication_created_remote'
+      );
     } catch (error) {
-      console.error('❌ Error enviando FCM:', error);
+      console.error('❌ Error enviando FCM create:', error);
     }
 
     return createdMedication;
@@ -26,8 +39,26 @@ export class MedicationService {
     return this.repository.getAll();
   }
 
-  updateMedication(medication: Medication) {
-    return this.repository.update(medication);
+  async updateMedication(medication: Medication, deviceId: string) {
+    const updatedMedication = await this.repository.update(medication);
+
+    try {
+      const tokens =
+        await this.userDeviceRepository.getTokensByUserIdExcludingDevice(
+          updatedMedication.userId,
+          deviceId
+        );
+
+      await sendMedicationNotificationToTokens(
+        updatedMedication,
+        tokens,
+        'medication_updated_remote'
+      );
+    } catch (error) {
+      console.error('❌ Error enviando FCM update:', error);
+    }
+
+    return updatedMedication;
   }
 
   deleteMedication(id: string) {

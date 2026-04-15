@@ -16,12 +16,13 @@ export class MedicineController {
         notes,
         quantity,
         price,
-        isActive
+        isActive,
+        deviceId
       } = req.body;
 
-      if (!userId || !name || !dosage || !form || quantity === undefined) {
+      if (!userId || !name || !dosage || !form || quantity === undefined || !deviceId) {
         return res.status(400).json({
-          error: "userId, name, dosage, form y quantity son requeridos"
+          error: "userId, name, dosage, form, quantity y deviceId son requeridos"
         });
       }
 
@@ -38,7 +39,7 @@ export class MedicineController {
         isActive: isActive ?? true
       };
 
-      const createdMedication = await this.service.createMedication(medication);
+      const createdMedication = await this.service.createMedication(medication, deviceId);
 
       return res.status(201).json({
         mensaje: "Medicamento agregado al tratamiento exitosamente",
@@ -46,6 +47,7 @@ export class MedicineController {
       });
 
     } catch (error) {
+      console.error(error);
       return res.status(500).json({
         error: "Error al crear medicamento"
       });
@@ -96,12 +98,13 @@ export class MedicineController {
         notes,
         quantity,
         price,
-        isActive
+        isActive,
+        deviceId
       } = req.body;
 
-      if (!userId || !name || !dosage || !form || quantity === undefined) {
+      if (!userId || !name || !dosage || !form || quantity === undefined || !deviceId) {
         return res.status(400).json({
-          error: "userId, name, dosage, form y quantity son requeridos"
+          error: "userId, name, dosage, form, quantity y deviceId son requeridos"
         });
       }
 
@@ -118,7 +121,7 @@ export class MedicineController {
         isActive: isActive ?? true
       };
 
-      const updatedMedication = await this.service.updateMedication(updated);
+      const updatedMedication = await this.service.updateMedication(updated, deviceId);
 
       return res.json({
         mensaje: "Medicamento actualizado exitosamente",
@@ -126,6 +129,7 @@ export class MedicineController {
       });
 
     } catch (error) {
+      console.error(error);
       return res.status(500).json({
         error: "Error al actualizar medicamento"
       });
