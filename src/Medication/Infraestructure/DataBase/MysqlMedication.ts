@@ -9,7 +9,7 @@ export class MySQLMedicationRepository implements MedicationRepository {
   private mapRowToMedication(row: any): Medication {
     return {
       id: row.id,
-      userId: row.user_id,
+      patientId: row.patient_id,
       name: row.name,
       dosage: row.dosage,
       form: row.form,
@@ -20,7 +20,9 @@ export class MySQLMedicationRepository implements MedicationRepository {
         row.price !== null && row.price !== undefined
           ? Number(row.price)
           : undefined,
-      isActive: Boolean(row.is_active)
+      isActive: Boolean(row.is_active),
+      startDate: row.start_date ?? null,
+      endDate: row.end_date ?? null,
     };
   }
 
@@ -31,7 +33,7 @@ export class MySQLMedicationRepository implements MedicationRepository {
       `
       INSERT INTO medications (
         id,
-        user_id,
+        patient_id,
         name,
         dosage,
         form,
@@ -39,12 +41,14 @@ export class MySQLMedicationRepository implements MedicationRepository {
         notes,
         quantity,
         price,
-        is_active
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        is_active,
+        start_date,
+        end_date
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
         id,
-        medication.userId,
+        medication.patientId,
         medication.name,
         medication.dosage,
         medication.form,
@@ -52,7 +56,9 @@ export class MySQLMedicationRepository implements MedicationRepository {
         medication.notes ?? null,
         medication.quantity,
         medication.price ?? null,
-        medication.isActive
+        medication.isActive,
+        medication.startDate ?? null,
+        medication.endDate ?? null,
       ]
     );
 
@@ -83,7 +89,7 @@ export class MySQLMedicationRepository implements MedicationRepository {
       `
       UPDATE medications
       SET
-        user_id = ?,
+        patient_id = ?,
         name = ?,
         dosage = ?,
         form = ?,
@@ -91,11 +97,13 @@ export class MySQLMedicationRepository implements MedicationRepository {
         notes = ?,
         quantity = ?,
         price = ?,
-        is_active = ?
+        is_active = ?,
+        start_date = ?,
+        end_date = ?
       WHERE id = ?
       `,
       [
-        medication.userId,
+        medication.patientId,
         medication.name,
         medication.dosage,
         medication.form,
@@ -104,6 +112,8 @@ export class MySQLMedicationRepository implements MedicationRepository {
         medication.quantity,
         medication.price ?? null,
         medication.isActive,
+        medication.startDate ?? null,
+        medication.endDate ?? null,
         medication.id
       ]
     );

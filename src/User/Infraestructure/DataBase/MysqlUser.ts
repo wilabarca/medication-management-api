@@ -10,8 +10,8 @@ export class MySQLUserRepository implements UserRepository {
     const id = crypto.randomUUID();
 
     await this.db.execute(
-      `INSERT INTO users (id, name, email, password) VALUES (?, ?, ?, ?)`,
-      [id, user.name, user.email, user.password]
+      `INSERT INTO users (id, name, email, password, role) VALUES (?, ?, ?, ?, ?)`,
+      [id, user.name, user.email, user.password, user.role]
     );
 
     return { ...user, id };
@@ -22,6 +22,7 @@ export class MySQLUserRepository implements UserRepository {
       `SELECT * FROM users WHERE id = ?`,
       [id]
     );
+
     return rows[0] || null;
   }
 
@@ -30,28 +31,25 @@ export class MySQLUserRepository implements UserRepository {
       `SELECT * FROM users WHERE email = ?`,
       [email]
     );
+
     return rows[0] || null;
   }
 
   async getAll(): Promise<User[]> {
-    const [rows] = await this.db.execute<any[]>(
-      `SELECT * FROM users`
-    );
+    const [rows] = await this.db.execute<any[]>(`SELECT * FROM users`);
     return rows;
   }
 
   async update(user: User): Promise<User> {
     await this.db.execute(
-      `UPDATE users SET name=?, email=?, password=? WHERE id=?`,
-      [user.name, user.email, user.password, user.id]
+      `UPDATE users SET name = ?, email = ?, password = ?, role = ? WHERE id = ?`,
+      [user.name, user.email, user.password, user.role, user.id]
     );
+
     return user;
   }
 
   async delete(id: string): Promise<void> {
-    await this.db.execute(
-      `DELETE FROM users WHERE id=?`,
-      [id]
-    );
+    await this.db.execute(`DELETE FROM users WHERE id = ?`, [id]);
   }
 }

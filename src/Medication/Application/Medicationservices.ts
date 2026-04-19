@@ -1,34 +1,13 @@
 import { Medication } from '../Domain/Entities/Medication';
 import { MedicationRepository } from '../Domain/Repositories/MedicationRepository';
-import { sendMedicationNotificationToTokens } from '../../Core/firebase/MedicationNotifications';
-import { UserDeviceRepository } from '../../Devises/domain/Repositories/UserDeviceRepository';
 
 export class MedicationService {
   constructor(
-    private repository: MedicationRepository,
-    private userDeviceRepository: UserDeviceRepository
+    private repository: MedicationRepository
   ) {}
 
-  async createMedication(medication: Medication, deviceId: string) {
-    const createdMedication = await this.repository.create(medication);
-
-    try {
-      const tokens =
-        await this.userDeviceRepository.getTokensByUserIdExcludingDevice(
-          createdMedication.userId,
-          deviceId
-        );
-
-      await sendMedicationNotificationToTokens(
-        createdMedication,
-        tokens,
-        'medication_created_remote'
-      );
-    } catch (error) {
-      console.error('❌ Error enviando FCM create:', error);
-    }
-
-    return createdMedication;
+  async createMedication(medication: Medication) {
+    return this.repository.create(medication);
   }
 
   getMedicationById(id: string) {
@@ -39,26 +18,8 @@ export class MedicationService {
     return this.repository.getAll();
   }
 
-  async updateMedication(medication: Medication, deviceId: string) {
-    const updatedMedication = await this.repository.update(medication);
-
-    try {
-      const tokens =
-        await this.userDeviceRepository.getTokensByUserIdExcludingDevice(
-          updatedMedication.userId,
-          deviceId
-        );
-
-      await sendMedicationNotificationToTokens(
-        updatedMedication,
-        tokens,
-        'medication_updated_remote'
-      );
-    } catch (error) {
-      console.error('❌ Error enviando FCM update:', error);
-    }
-
-    return updatedMedication;
+  async updateMedication(medication: Medication) {
+    return this.repository.update(medication);
   }
 
   deleteMedication(id: string) {

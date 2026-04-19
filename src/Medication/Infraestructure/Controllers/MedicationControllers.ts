@@ -8,7 +8,7 @@ export class MedicineController {
   async createMedicine(req: Request, res: Response): Promise<Response> {
     try {
       const {
-        userId,
+        patientId,
         name,
         dosage,
         form,
@@ -17,18 +17,19 @@ export class MedicineController {
         quantity,
         price,
         isActive,
-        deviceId
+        startDate,
+        endDate
       } = req.body;
 
-      if (!userId || !name || !dosage || !form || quantity === undefined || !deviceId) {
+      if (!patientId || !name || !dosage || !form || quantity === undefined) {
         return res.status(400).json({
-          error: "userId, name, dosage, form, quantity y deviceId son requeridos"
+          error: "patientId, name, dosage, form y quantity son requeridos"
         });
       }
 
       const medication: Medication = {
         id: '',
-        userId,
+        patientId,
         name,
         dosage,
         form,
@@ -36,10 +37,12 @@ export class MedicineController {
         notes,
         quantity,
         price,
-        isActive: isActive ?? true
+        isActive: isActive ?? true,
+        startDate: startDate ?? null,
+        endDate: endDate ?? null
       };
 
-      const createdMedication = await this.service.createMedication(medication, deviceId);
+      const createdMedication = await this.service.createMedication(medication);
 
       return res.status(201).json({
         mensaje: "Medicamento agregado al tratamiento exitosamente",
@@ -90,7 +93,7 @@ export class MedicineController {
     try {
       const id = req.params.id as string;
       const {
-        userId,
+        patientId,
         name,
         dosage,
         form,
@@ -99,18 +102,19 @@ export class MedicineController {
         quantity,
         price,
         isActive,
-        deviceId
+        startDate,
+        endDate
       } = req.body;
 
-      if (!userId || !name || !dosage || !form || quantity === undefined || !deviceId) {
+      if (!patientId || !name || !dosage || !form || quantity === undefined) {
         return res.status(400).json({
-          error: "userId, name, dosage, form, quantity y deviceId son requeridos"
+          error: "patientId, name, dosage, form y quantity son requeridos"
         });
       }
 
       const updated: Medication = {
         id,
-        userId,
+        patientId,
         name,
         dosage,
         form,
@@ -118,10 +122,12 @@ export class MedicineController {
         notes,
         quantity,
         price,
-        isActive: isActive ?? true
+        isActive: isActive ?? true,
+        startDate: startDate ?? null,
+        endDate: endDate ?? null
       };
 
-      const updatedMedication = await this.service.updateMedication(updated, deviceId);
+      const updatedMedication = await this.service.updateMedication(updated);
 
       return res.json({
         mensaje: "Medicamento actualizado exitosamente",

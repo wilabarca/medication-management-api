@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+
 import { RegisterUserRoutes } from './User/Infraestructure/Router/UserRouter';
 import { RegisterMedicationRoutes } from './Medication/Infraestructure/Routers/MedicationRouter';
 import { UserController } from './User/Infraestructure/Controllers/UserController';
@@ -15,6 +16,10 @@ import { MySQLUserDeviceRepository } from "./Devises/infrastructure/database/Mys
 import { RegisterUserDeviceRoutes } from "./Devises/infrastructure/router/UserDeviceRouter";
 import { initDB, pool } from './Core/MySQL';
 
+import { PatientService } from './patient/Application/PatientService';
+import { PatientController } from './patient/Infrastructure/Controllers/PatientController';
+import { MySQLPatientRepository } from './patient/Infrastructure/Database/MySqlPatient';
+import { RegisterPatientRoutes } from './patient/Infrastructure/Router/PatientRouters';
 
 const app = express();
 
@@ -61,7 +66,7 @@ export async function initializeRoutes() {
 
     await initDB();
     console.log('📦 Conexión MySQL lista');
-
+    /* Usuarios*/
     const userRepository = new MySQLUserRepository(pool);
     const userService = new UserService(userRepository);
     const userController = new UserController(userService);
@@ -71,18 +76,24 @@ export async function initializeRoutes() {
     const userDeviceService = new UserDeviceService(userDeviceRepository);
     const userDeviceController = new UserDeviceController(userDeviceService);
 
+//---------------------------------------------------------------
+/* Pacientes */
 
+const patientRepository = new MySQLPatientRepository(pool);
+const patientService = new PatientService(patientRepository);
+const patientController = new PatientController(patientService);
 
-    const medicationRepository = new MySQLMedicationRepository(pool);
-    const medicationService = new MedicationService(
-    medicationRepository,
-    userDeviceRepository
-);
-    const medicationController = new MedicineController(medicationService);
+//---------------------------------------------------------------
+
+    /* Medicamentos */
+const medicationRepository = new MySQLMedicationRepository(pool);
+const medicationService = new MedicationService(medicationRepository);
+const medicationController = new MedicineController(medicationService);
 
     RegisterUserRoutes(app, userController);
     RegisterMedicationRoutes(app, medicationController);
     RegisterUserDeviceRoutes(app, userDeviceController);
+    RegisterPatientRoutes(app, patientController);
 
     app.get('/', (_, res) => {
       res.json({

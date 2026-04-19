@@ -3,7 +3,6 @@ import jwt from "jsonwebtoken";
 import { UserRepository } from "../Domain/Repositories/UserRepository";
 import { User } from "../Domain/Entities/User";
 
-
 export class UserService {
   private repository: UserRepository;
 
@@ -12,6 +11,15 @@ export class UserService {
   }
 
   async createUser(user: User): Promise<User> {
+    if (!user.role || !["caregiver", "patient"].includes(user.role)) {
+      throw new Error("Rol inválido");
+    }
+
+    const existingUser = await this.repository.getByEmail(user.email);
+    if (existingUser) {
+      throw new Error("El correo ya está registrado");
+    }
+
     const hashedPassword = await bcrypt.hash(user.password, 10);
 
     const newUser: User = {
@@ -22,29 +30,36 @@ export class UserService {
     return this.repository.create(newUser);
   }
 
-  async login(email: string, password: string): Promise<string | null> {
+  async login(email: string, password: string): Promise<{
+    token: string;
+    user: Omit<User, "password">;
+  } | null> {
     const user = await this.repository.getByEmail(email);
 
-    if (!user) {
-      return null;
-    }
+    if (!user) return null;
 
     const validPassword = await bcrypt.compare(password, user.password);
-
-    if (!validPassword) {
-      return null;
-    }
+    if (!validPassword) return null;
 
     const token = jwt.sign(
       {
         id: user.id,
         email: user.email,
+        role: user.role,
       },
-      "SECRET_KEY",
+      process.env.JWT_SECRET || "SECRET_KEY",
       { expiresIn: "1h" }
     );
 
-    return token;
+    return {
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    };
   }
 
   async getUserById(id: string): Promise<User | null> {

@@ -1,3 +1,5 @@
+
+/*
 import { getMessaging } from './FirebaseAdmin';
 import { Medication } from '../../Medication/Domain/Entities/Medication';
 
@@ -21,6 +23,7 @@ function buildNotificationContent(
     body: `Se agregó ${medication.name} en otro dispositivo`,
   };
 }
+
 
 export async function sendMedicationNotificationToTokens(
   medication: Medication,
@@ -60,3 +63,4 @@ export async function sendMedicationNotificationToTokens(
     },
   });
 }
+  */
