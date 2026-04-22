@@ -6,4 +6,5 @@ export interface PatientRepository {
   getByCaregiverUserId(caregiverUserId: string): Promise<Patient[]>;
   update(patient: Patient): Promise<Patient>;
   delete(id: string): Promise<void>;
+  linkUserToPatient(patientId: string, userId: string): Promise<void>;
 }

@@ -21,6 +21,11 @@ import { PatientController } from './Patient/Infrastructure/Controllers/PatientC
 import { MySQLPatientRepository } from './Patient/Infrastructure/Database/MySQLPatient';
 import { RegisterPatientRoutes } from './Patient/Infrastructure/Router/PatientRouters';
 
+import { PatientLinkTokenService } from './Patient/Application/PatientLinkTokenService';
+import { PatientLinkTokenController } from './Patient/Infrastructure/Controllers/PatientLinkTokenController';
+import { MySQLPatientLinkTokenRepository } from './Patient/Infrastructure/Database/MySQLPatientLinkTokenRepository';
+import { RegisterPatientLinkTokenRoutes } from './Patient/Infrastructure/Router/PatientLinkTokenRoutes';
+
 const app = express();
 
 app.use(cors());
@@ -90,11 +95,23 @@ const medicationRepository = new MySQLMedicationRepository(pool);
 const medicationService = new MedicationService(medicationRepository);
 const medicationController = new MedicineController(medicationService);
 
+const patientLinkTokenRepository = new MySQLPatientLinkTokenRepository(pool);
+const patientLinkTokenService = new PatientLinkTokenService(
+  patientRepository,
+  patientLinkTokenRepository
+);
+const patientLinkTokenController = new PatientLinkTokenController(
+  patientLinkTokenService
+);
+
+
     RegisterUserRoutes(app, userController);
     RegisterMedicationRoutes(app, medicationController);
     RegisterUserDeviceRoutes(app, userDeviceController);
     RegisterPatientRoutes(app, patientController);
+    RegisterPatientLinkTokenRoutes(app, patientLinkTokenController);
 
+    
     app.get('/', (_, res) => {
       res.json({
         mensaje: 'API Farmacia',

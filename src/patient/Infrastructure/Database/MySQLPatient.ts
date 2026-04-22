@@ -19,6 +19,17 @@ export class MySQLPatientRepository implements PatientRepository {
     };
   }
 
+  async linkUserToPatient(patientId: string, userId: string): Promise<void> {
+  await this.db.execute(
+    `
+    UPDATE patients
+    SET linked_user_id = ?
+    WHERE id = ?
+    `,
+    [userId, patientId]
+  );
+}
+
   async create(patient: Patient): Promise<Patient> {
     const id = crypto.randomUUID();
 
