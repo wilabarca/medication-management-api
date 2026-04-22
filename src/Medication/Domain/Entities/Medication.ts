@@ -4,10 +4,10 @@ export interface Medication {
     name: string;
     dosage: string;
     form: string;
-    instructions?: string;
-    notes?: string;
+    instructions?: string | null;
+    notes?: string | null;
     quantity: number;
-    price?: number;
+    price?: number | null;
     isActive: boolean;
     startDate?: string | null;
     endDate?: string | null;

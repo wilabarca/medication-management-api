@@ -1,7 +1,7 @@
-import mysql from 'mysql2/promise';
-import crypto from 'crypto';
-import { Medication } from '../../Domain/Entities/Medication';
-import { MedicationRepository } from '../../Domain/Repositories/MedicationRepository';
+import mysql from "mysql2/promise";
+import crypto from "crypto";
+import { Medication } from "../../Domain/Entities/Medication";
+import { MedicationRepository } from "../../Domain/Repositories/MedicationRepository";
 
 export class MySQLMedicationRepository implements MedicationRepository {
   constructor(private db: mysql.Pool) {}
@@ -13,16 +13,11 @@ export class MySQLMedicationRepository implements MedicationRepository {
       name: row.name,
       dosage: row.dosage,
       form: row.form,
-      instructions: row.instructions ?? undefined,
-      notes: row.notes ?? undefined,
-      quantity: Number(row.quantity ?? 0),
-      price:
-        row.price !== null && row.price !== undefined
-          ? Number(row.price)
-          : undefined,
+      instructions: row.instructions,
+      notes: row.notes,
+      quantity: row.quantity,
+      price: row.price,
       isActive: Boolean(row.is_active),
-      startDate: row.start_date ?? null,
-      endDate: row.end_date ?? null,
     };
   }
 
@@ -41,10 +36,8 @@ export class MySQLMedicationRepository implements MedicationRepository {
         notes,
         quantity,
         price,
-        is_active,
-        start_date,
-        end_date
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        is_active
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
         id,
@@ -57,15 +50,10 @@ export class MySQLMedicationRepository implements MedicationRepository {
         medication.quantity,
         medication.price ?? null,
         medication.isActive,
-        medication.startDate ?? null,
-        medication.endDate ?? null,
       ]
     );
 
-    return {
-      ...medication,
-      id
-    };
+    return { ...medication, id };
   }
 
   async getById(id: string): Promise<Medication | null> {
@@ -75,12 +63,23 @@ export class MySQLMedicationRepository implements MedicationRepository {
     );
 
     if (!rows.length) return null;
-
     return this.mapRowToMedication(rows[0]);
   }
 
   async getAll(): Promise<Medication[]> {
-    const [rows] = await this.db.execute<any[]>(`SELECT * FROM medications`);
+    const [rows] = await this.db.execute<any[]>(
+      `SELECT * FROM medications`
+    );
+
+    return rows.map((row) => this.mapRowToMedication(row));
+  }
+
+  async getByPatientId(patientId: string): Promise<Medication[]> {
+    const [rows] = await this.db.execute<any[]>(
+      `SELECT * FROM medications WHERE patient_id = ?`,
+      [patientId]
+    );
+
     return rows.map((row) => this.mapRowToMedication(row));
   }
 
@@ -97,9 +96,7 @@ export class MySQLMedicationRepository implements MedicationRepository {
         notes = ?,
         quantity = ?,
         price = ?,
-        is_active = ?,
-        start_date = ?,
-        end_date = ?
+        is_active = ?
       WHERE id = ?
       `,
       [
@@ -112,9 +109,7 @@ export class MySQLMedicationRepository implements MedicationRepository {
         medication.quantity,
         medication.price ?? null,
         medication.isActive,
-        medication.startDate ?? null,
-        medication.endDate ?? null,
-        medication.id
+        medication.id,
       ]
     );
 
@@ -122,6 +117,9 @@ export class MySQLMedicationRepository implements MedicationRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.db.execute(`DELETE FROM medications WHERE id = ?`, [id]);
+    await this.db.execute(
+      `DELETE FROM medications WHERE id = ?`,
+      [id]
+    );
   }
 }
