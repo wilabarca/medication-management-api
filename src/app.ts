@@ -1,14 +1,14 @@
 import express from 'express';
 import cors from 'cors';
 
-import { RegisterUserRoutes } from './User/Infraestructure/Router/UserRouter';
-import { RegisterMedicationRoutes } from './Medication/Infraestructure/Routers/MedicationRouter';
-import { UserController } from './User/Infraestructure/Controllers/UserController';
+import { RegisterUserRoutes } from './User/Infrastructure/Router/UserRouter';
+import { RegisterMedicationRoutes } from './Medication/Infrastructure/Routers/MedicationRouter';
+import { UserController } from './User/Infrastructure/Controllers/UserController';
 import { UserService } from './User/Application/Userservices';
-import { MySQLUserRepository } from './User/Infraestructure/DataBase/MysqlUser';
-import { MedicineController } from './Medication/Infraestructure/Controllers/MedicationControllers';
+import { MySQLUserRepository } from './User/Infrastructure/DataBase/MysqlUser';
+import { MedicineController } from './Medication/Infrastructure/Controllers/MedicationControllers';
 import { MedicationService } from './Medication/Application/Medicationservices';
-import { MySQLMedicationRepository } from './Medication/Infraestructure/DataBase/MysqlMedication';
+import { MySQLMedicationRepository } from './Medication/Infrastructure/DataBase/MysqlMedication';
 
 import { UserDeviceService } from "./Devises/application/UserDeviceService";
 import { UserDeviceController } from "./Devises/infrastructure/controllers/UserDeviceController";
