@@ -16,10 +16,10 @@ import { MySQLUserDeviceRepository } from "./Devises/infrastructure/database/Mys
 import { RegisterUserDeviceRoutes } from "./Devises/infrastructure/router/UserDeviceRouter";
 import { initDB, pool } from './Core/MySQL';
 
-import { PatientService } from './patient/Application/PatientService';
-import { PatientController } from './patient/Infrastructure/Controllers/PatientController';
-import { MySQLPatientRepository } from './patient/Infrastructure/Database/MySqlPatient';
-import { RegisterPatientRoutes } from './patient/Infrastructure/Router/PatientRouters';
+import { PatientService } from './Patient/Application/PatientService';
+import { PatientController } from './Patient/Infrastructure/Controllers/PatientController';
+import { MySQLPatientRepository } from './Patient/Infrastructure/Database/MySQLPatient';
+import { RegisterPatientRoutes } from './Patient/Infrastructure/Router/PatientRouters';
 
 const app = express();
 
